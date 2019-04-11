@@ -131,4 +131,89 @@ they are mapped to the respective SCIM attributes.
     </tbody>
 </table>
 
+## Get a list of users
+
+```
+GET /scim/v2/Users
+```
+
+Lists all users in a TeamViewer company. The list can optionally be
+filtered and paginated.
+
+### Parameters
+
+* **filter** (optional)
+
+    Enables filtering of the user list.
+
+    Example: `filter=userName eq "johndoe@testing.local"`
+
+    * Supported filter operators (matches case-sensitive):
+
+        * `eq` : Attribute must match exactly.
+        * `ne` : Attribute must not match.
+        * `co` : Attribute must contain given value.
+        * `sw` : Attribute must start with given value.
+        * `ew` : Attribute must end with given value.
+
+    * Supported attributes to filter on:
+
+        * `userName` (corresponds to email address)
+        * `emails.value`
+        * `name`
+        * `displayName`
+
+* **startIndex** (optional)
+
+    Used for pagination. This is the (1-based) index to start returning
+    values for. It defaults to 1 if not present.
+
+* **count** (optional)
+
+    The maximum number of items to include in the result set.
+
+    If not given, all items will be returned, beginning from the
+    optionally given "startIndex".
+
+### Example
+
+#### Request
+```
+GET /scim/v2/Users?filter=userName ew "example.test"
+```
+
+#### Response - 200 OK
+```json
+{
+    "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+    ],
+    "totalResults": 3,
+    "startIndex": 0,
+    "itemsPerPage": 3,
+    "Resources": [
+        {
+            "id": "u1234567",
+            "name": {
+                "givenName": "John",
+                "familyName": "Doe",
+                "formatted": "John Doe"
+            },
+            "displayName": "John Doe",
+            "emails": [
+                {
+                    "primary": true,
+                    "value": "johndoe@example.test"
+                }
+            ],
+            "userName": "johndoe@example.test",
+            "active": true
+        },
+        { … },
+        { … }
+    ]
+}
+```
+
+
 [tvapidocs]: https://dl.tvcdn.de/integrate/TeamViewer_API_Documentation.pdf
