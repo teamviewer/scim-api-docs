@@ -131,6 +131,7 @@ they are mapped to the respective SCIM attributes.
     </tbody>
 </table>
 
+
 ## Get a list of users
 
 ```
@@ -212,6 +213,443 @@ GET /scim/v2/Users?filter=userName ew "example.test"
         { … },
         { … }
     ]
+}
+```
+
+
+## Get a single user
+
+```
+GET /scim/v2/Users/{id}
+```
+
+Returns the information for a single user. The "id" placeholder must be
+replaced by the user's ID as returned by the list-operation.
+
+### Parameters
+
+* **id** (path)
+
+    The user's ID as returned by the list-operation.
+
+### Example
+
+#### Request
+```
+GET /scim/v2/Users/u1234567
+```
+
+#### Response - 200 OK
+```json
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "id": "u1234567",
+    "name": {
+        "givenName": "John",
+        "familyName": "Doe",
+        "formatted": "John Doe"
+    },
+    "displayName": "John Doe",
+    "emails": [
+        {
+            "primary": true,
+            "value": "johndoe@example.test"
+        }
+    ],
+    "userName": "johndoe@example.test",
+    "active": true
+}
+```
+
+
+## Create a new user
+
+```
+POST /scim/v2/Users
+```
+
+Creates a new user for the TeamViewer company. The new user is returned
+as response to this operation. Optionally, users can be created to be
+enabled for Single Sign-On and will therefore not require a TeamViewer
+account password.
+
+### Parameters
+
+Given as JSON formatted payload in the request body.
+
+* **schemas**
+
+    Must include the "urn:ietf:params:scim:schemas:core:2.0:User"
+    schema.
+
+* **userName**
+
+    The email address for the new user. Will be used for login.
+
+    This attribute has precedence over the "emails" parameter.
+
+* **displayName**
+
+    The name of the new user.
+
+    This attribute has precedence over the "name" parameter.
+
+* **emails**
+
+    List of email addresses of the user. Values will only be evaluated
+    if the email address is not given in the "userName" attribute. If
+    multiple values are present, the first entry marked as primary email
+    address is taken. If no primary email address is given, the first
+    entry in the list is considered as the email address of the new
+    user.
+
+* **name**
+
+    Parts of the name of the new user.
+
+    The following order applies in building the name for the new user:
+
+    * If given, use the "displayName"
+    * Else, if given use the "name.formatted"
+    * Otherwise build the name by separating "name.givenName" and
+      "name.familyName" by a space-character.
+
+* **password** (optional)
+
+    Predefined password for the user. Will be used for login.
+
+* **preferredLanguage** (optional)
+
+    Language for the new user. Will be used for the welcome email.
+    Defaults to "en".
+
+* **ssoCustomerId** (optional)
+
+    The customer identifier that is needed for Single Sign-On. If this
+    parameter is specified, newly created users are SSO-enabled and do
+    not need a TeamViewer account password.
+
+    This parameter is part of the SCIM extension schema `urn:ietf:params:scim:schemas:extension:teamviewer:1.0:SsoUser`
+
+### Example #1 - Normal User
+
+#### Request
+```json
+POST /scim/v2/Users
+Content-Type: application/scim+json
+
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "userName": "jane.doe@example.test",
+    "displayName": "Jane Doe",
+    "emails": [
+        {
+            "value": "jane.doe@example.test",
+            "primary": true
+        }
+    ],
+    "name": {
+        "givenName": "Jane",
+        "familyName": "Doe",
+        "formatted": "Jane Doe"
+    },
+    "password": "secret1!",
+    "preferredLanguage": "de_DE"
+}
+```
+
+#### Response - 201 Created
+```json
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "id": "u1234567",
+    "name": {
+        "givenName": "Jane",
+        "familyName": "Doe",
+        "formatted": "Jane Doe"
+    },
+    "displayName": "Jane Doe",
+    "emails": [
+        {
+            "primary": true,
+            "value": "jane.doe@example.test"
+        }
+    ],
+    "userName": "jane.doe@example.test",
+    "active": true
+}
+```
+
+### Example #2 - Single Sign-On User
+
+#### Request
+```json
+POST /scim/v2/Users
+Content-Type: application/scim+json
+
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User",
+        "urn:ietf:params:scim:schemas:extension:teamviewer:1.0:SsoUser"
+    ],
+    "userName": "jane.doe@example.test",
+    "displayName": "Jane Doe",
+    "emails": [
+        {
+            "value": "jane.doe@example.test",
+            "primary": true
+        }
+    ],
+    "name": {
+        "givenName": "Jane",
+        "familyName": "Doe",
+        "formatted": "Jane Doe"
+    },
+    "preferredLanguage": "de_DE",
+    "urn:ietf:params:scim:schemas:extension:teamviewer:1.0:SsoUser": {
+        "ssoCustomerId": "a1b2bc4d5e6f7"
+    }
+}
+```
+
+The response is similar to the one given in the first example for this
+endpoint.
+
+
+## Update an existing user
+
+```
+PUT /scim/v2/Users/{id}
+```
+
+Changes information for the selected user. The "id" placeholder must be
+replaced by the user's ID as returned by the list-operation. The "PUT"
+operation intends to replace an existing resource. Therefore the request
+should include the complete (updated) user information. This includes
+attributes that do not change. Responds with the updated User resource.
+
+### Parameters
+
+* **id** (path)
+
+    The user's ID as returned by the list-operation.
+
+Given as JSON formatted payload in the request body:
+
+* **schemas**
+
+    Must include the "urn:ietf:params:scim:schemas:core:2.0:User"
+    schema.
+
+* **userName**
+
+    The email address of the user.
+
+    This attribute has precedence over the "emails" parameter.
+
+    Changes the email address of the user if different than the current
+    email address. A verification Email will be sent to the new address.
+
+* **displayName**
+
+    The name of the new user.
+
+    This attribute has precedence over the "name" parameter.
+
+    Changes the name of the user if different than the current name.
+
+* **emails**
+
+    List of email addresses of the user. Values will only be evaluated
+    if the email address is not given in the "userName" attribute. If
+    multiple values are present, the first entry marked as primary email
+    address is taken. If no primary email address is given, the first
+    entry in the list is considered as the email address of the new
+    user.
+
+* **name**
+
+    Parts of the name of the user.
+
+    The following order applies in building the name for the new user:
+
+    * If given, use the "displayName"
+    * Else, if given use the "name.formatted"
+    * Otherwise build the name by separating "name.givenName" and
+      "name.familyName" by a space-character.
+
+* **active**
+
+    The state of the user account. True, if the account is enabled,
+    false otherwise.
+
+    Can be used to activate/deactivate the user account.
+
+### Example
+
+#### Request
+```json
+PUT /scim/v2/Users/u1234567
+Content-Type: application/scim+json
+
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "userName": "jane.doe@example.test",
+    "displayName": "Jane Doe (Updated Name)",
+    "emails": [
+        {
+            "value": "jane.doe@example.test",
+            "primary": true
+        }
+    ],
+    "name": {
+        "givenName": "Jane",
+        "familyName": "Doe (Updated Name)",
+        "formatted": "Jane Doe (Updated Name)"
+    },
+    "active": true
+}
+```
+
+#### Response - 200 OK
+```json
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "id": "u1234567",
+    "name": {
+        "givenName": "Jane",
+        "familyName": "Doe (Updated Name)",
+        "formatted": "Jane Doe (Updated Name)"
+    },
+    "displayName": "Jane Doe (Updated Name)",
+    "emails": [
+        {
+            "primary": true,
+            "value": "jane.doe@example.test"
+        }
+    ],
+    "userName": "jane.doe@example.test",
+    "active": true
+}
+```
+
+
+## Update properties of an existing user
+
+```
+PATCH /scim/v2/Users/{id}
+```
+
+Changes information for the selected user. The "id" placeholder must be
+replaced by the user's ID as returned by the list-operation. The "PATCH"
+operation can be used to change single properties of a user. Only the
+parts that need to be changed are needed in the request body. Responds
+with the updated User resource.
+
+### Parameters
+
+* **id** (path)
+
+    The user's ID as returned by the list-operation.
+
+Given as JSON formatted payload in the request body:
+
+* **schemas**
+
+    Must include the "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+    schema.
+
+* **Operations**
+
+    List of operations to apply to the selected user.
+
+    * **op**
+
+        Type of change operation to perform. The only supported
+        operation type is "replace".
+
+    * **path** (optional)
+
+        Optional path of the attribute to change. Child attributes of
+        need to be separated by dot (.) from their parent attribute
+        (e.g. "name.givenName").
+
+    * **value**
+
+        Parts of the user to change.
+
+        If the "path" attribute is omitted, this needs to be a partial
+        User object. Otherwise the value of the respective attribute,
+        addressed by "path".
+
+        Changing the following attributes is supported:
+
+        * `userName`
+        * `displayName`
+        * `emails.value`
+        * `name.formatted`
+        * `name.givenName`
+        * `name.familyName`
+        * `active`
+
+### Example
+
+#### Request
+```json
+PATCH /scim/v2/Users/u1234567
+Content-Type: application/scim+json
+
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:PatchOp"
+    ],
+    "Operations": [
+        {
+            "op": "replace",
+            "value": {
+                "active": false
+            }
+        },
+        {
+            "op": "replace",
+            "path": "displayName",
+            "value": "Jane Doe Updated"
+        }
+    ]
+}
+```
+
+#### Response - 200 OK
+```json
+{
+    "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+    ],
+    "id": "u1234567",
+    "name": {
+        "givenName": "Jane",
+        "familyName": "Doe Updated",
+        "formatted": "Jane Doe Updated"
+    },
+    "displayName": "Jane Doe Updated",
+    "emails": [
+        {
+            "primary": true,
+            "value": "jane.doe@example.test"
+        }
+    ],
+    "userName": "jane.doe@example.test",
+    "active": false
 }
 ```
 
