@@ -34,6 +34,10 @@ Console "Script Token" dialog:
 * UserManagement: View, create and edit users
 * UserManagement: View, create and edit users and admins (optional)
 
+<p align="center">
+    <img src="images/ScimApiToken.png" alt="API Token Attributes" width="500" />
+</p>
+
 # SCIM API User Resource
 
 ## User Attributes
@@ -145,8 +149,7 @@ filtered and paginated.
 
 * **filter** (optional)
 
-    Enables filtering of the user list.
-
+    Enables filtering of the user list. <br/>
     Example: `filter=userName eq "johndoe@testing.local"`
 
     * Supported filter operators (matches case-sensitive):
@@ -171,8 +174,7 @@ filtered and paginated.
 
 * **count** (optional)
 
-    The maximum number of items to include in the result set.
-
+    The maximum number of items to include in the result set. <br/>
     If not given, all items will be returned, beginning from the
     optionally given "startIndex".
 
@@ -286,14 +288,12 @@ Given as JSON formatted payload in the request body.
 
 * **userName**
 
-    The email address for the new user. Will be used for login.
-
+    The email address for the new user. Will be used for login. <br/>
     This attribute has precedence over the "emails" parameter.
 
 * **displayName**
 
-    The name of the new user.
-
+    The name of the new user. <br/>
     This attribute has precedence over the "name" parameter.
 
 * **emails**
@@ -307,8 +307,7 @@ Given as JSON formatted payload in the request body.
 
 * **name**
 
-    Parts of the name of the new user.
-
+    Parts of the name of the new user. <br/>
     The following order applies in building the name for the new user:
 
     * If given, use the "displayName"
@@ -329,14 +328,13 @@ Given as JSON formatted payload in the request body.
 
     The customer identifier that is needed for Single Sign-On. If this
     parameter is specified, newly created users are SSO-enabled and do
-    not need a TeamViewer account password.
-
+    not need a TeamViewer account password. <br/>
     This parameter is part of the SCIM extension schema `urn:ietf:params:scim:schemas:extension:teamviewer:1.0:SsoUser`
 
 ### Example #1 - Normal User
 
 #### Request
-```json
+```
 POST /scim/v2/Users
 Content-Type: application/scim+json
 
@@ -389,7 +387,7 @@ Content-Type: application/scim+json
 ### Example #2 - Single Sign-On User
 
 #### Request
-```json
+```
 POST /scim/v2/Users
 Content-Type: application/scim+json
 
@@ -449,19 +447,15 @@ Given as JSON formatted payload in the request body:
 
 * **userName**
 
-    The email address of the user.
-
-    This attribute has precedence over the "emails" parameter.
-
+    The email address of the user. <br/>
+    This attribute has precedence over the "emails" parameter. <br/>
     Changes the email address of the user if different than the current
     email address. A verification Email will be sent to the new address.
 
 * **displayName**
 
-    The name of the new user.
-
-    This attribute has precedence over the "name" parameter.
-
+    The name of the new user. <br/>
+    This attribute has precedence over the "name" parameter. <br/>
     Changes the name of the user if different than the current name.
 
 * **emails**
@@ -475,8 +469,7 @@ Given as JSON formatted payload in the request body:
 
 * **name**
 
-    Parts of the name of the user.
-
+    Parts of the name of the user. <br/>
     The following order applies in building the name for the new user:
 
     * If given, use the "displayName"
@@ -487,14 +480,13 @@ Given as JSON formatted payload in the request body:
 * **active**
 
     The state of the user account. True, if the account is enabled,
-    false otherwise.
-
+    false otherwise. <br/>
     Can be used to activate/deactivate the user account.
 
 ### Example
 
 #### Request
-```json
+```
 PUT /scim/v2/Users/u1234567
 Content-Type: application/scim+json
 
@@ -586,12 +578,10 @@ Given as JSON formatted payload in the request body:
 
     * **value**
 
-        Parts of the user to change.
-
+        Parts of the user to change. <br/>
         If the "path" attribute is omitted, this needs to be a partial
         User object. Otherwise the value of the respective attribute,
-        addressed by "path".
-
+        addressed by "path". <br/>
         Changing the following attributes is supported:
 
         * `userName`
@@ -605,7 +595,7 @@ Given as JSON formatted payload in the request body:
 ### Example
 
 #### Request
-```json
+```
 PATCH /scim/v2/Users/u1234567
 Content-Type: application/scim+json
 
